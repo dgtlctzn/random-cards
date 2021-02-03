@@ -1,16 +1,19 @@
 exports.handler = async (event) => {
   try {
-    const { hand_size } = event.queryStringParameters;
+    let hand_size;
+    if (event.queryStringParameters) {
+      hand_size = event.queryStringParameters.hand_size;
+    }
     if (!hand_size) {
-      const response = {
+      const errResponse = {
         statusCode: 400,
         body: JSON.stringify({
           success: false,
           hand: null,
-          message: 'Missing query parameter "hand_size"',
+          message: "Missing query parameter 'hand_size'",
         }),
       };
-      return response;
+      return errResponse;
     }
     const handSize = parseInt(hand_size);
     if (handSize < 1 || handSize > 52) {
