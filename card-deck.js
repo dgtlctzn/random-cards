@@ -58,20 +58,22 @@ exports.handler = async (event) => {
       "Ace",
     ];
     const allHands = [];
+    const hand = [];
     let allHandsStr = "";
     for (let i = 0; i < totalHands; i++) {
-      const hand = [];
       let card = "";
-      while (hand.length < handSize) {
+      const playerHand = [];
+      while (playerHand.length < handSize) {
         let randomSuit = SUITS[Math.floor(Math.random() * SUITS.length)];
         let randomPip = PIP[Math.floor(Math.random() * PIP.length)];
         card = `${randomPip} of ${randomSuit}`;
         if (!hand.includes(card)) {
           hand.push(card);
+          playerHand.push(card)
         }
       }
-      allHands.push(hand);
-      allHandsStr += `Player ${i + 1}'s Cards: ${hand.join(", ")}\n`;
+      allHands.push(playerHand);
+      allHandsStr += `Player ${i + 1}'s Cards: ${playerHand.join(", ")}\n`;
     }
     const cardHand = {
       asString: allHandsStr,
