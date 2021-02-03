@@ -19,6 +19,9 @@ exports.handler = async (event) => {
           hand: null,
           message: "Missing query parameter 'hand_size'",
         }),
+        headers: {
+          "content-type":"application/json",
+        }
       };
     }
     if (handSize < 1 || handSize > 52 || isNaN(handSize)) {
@@ -29,6 +32,9 @@ exports.handler = async (event) => {
           hand: null,
           message: "Invalid hand size. Must be between one 1 and 52",
         }),
+        headers: {
+          "content-type":"application/json",
+        }
       };
     }
     if (totalHands < 1 || isNaN(totalHands)) {
@@ -39,6 +45,9 @@ exports.handler = async (event) => {
           hand: null,
           message: "Invalid number of hands",
         }),
+        headers: {
+          "content-type":"application/json",
+        }
       };
     }
     if (totalDecks < 1 || totalDecks > 8 || isNaN(totalDecks)) {
@@ -49,6 +58,9 @@ exports.handler = async (event) => {
           hand: null,
           message: "Invalid number of decks. Must be between one 1 and 8",
         }),
+        headers: {
+          "content-type":"application/json",
+        }
       };
     }
     if (handSize * totalHands > totalDecks * 52) {
@@ -63,6 +75,9 @@ exports.handler = async (event) => {
             totalDecks * 52
           } cards) to deal ${hand_size} cards for ${total_hands} players.`,
         }),
+        headers: {
+          "content-type":"application/json",
+        }
       };
     }
     const SUITS = ["Hearts", "Diamonds", "Spades", "Clubs"];
@@ -120,12 +135,18 @@ exports.handler = async (event) => {
           total_hands > 1 ? "s" : ""
         }. ${hand_size} cards delt${total_hands > 1 ? " per hand." : "."}`,
       }),
+      headers: {
+        "content-type":"application/json",
+      }
     };
   } catch (err) {
     console.log(err);
     return {
       statusCode: 500,
       body: null,
+      headers: {
+        "content-type":"application/json",
+      }
     };
   }
 };
