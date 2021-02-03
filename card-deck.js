@@ -2,12 +2,17 @@ exports.handler = async (event) => {
   try {
     let hand_size;
     let total_hands;
+    let total_decks;
     if (event.queryStringParameters) {
       hand_size = event.queryStringParameters.hand_size;
-      total_hands = event.queryStringParameters.total_hands || 1;
+      total_hands = event.queryStringParameters.total_hands || "1";
+      total_decks = event.queryStringParameters.total_decks || "1";
     }
+    const handSize = parseInt(hand_size);
+    const totalHands = parseInt(total_hands);
+    const totalDecks = parseInt(total_decks);
     if (!hand_size) {
-      const errResponse = {
+      return {
         statusCode: 400,
         body: JSON.stringify({
           success: false,
@@ -15,12 +20,9 @@ exports.handler = async (event) => {
           message: "Missing query parameter 'hand_size'",
         }),
       };
-      return errResponse;
     }
-    const handSize = parseInt(hand_size);
-    const totalHands = parseInt(total_hands);
     if (handSize < 1 || handSize > 52) {
-      const response = {
+      return {
         statusCode: 400,
         body: JSON.stringify({
           success: false,
@@ -28,18 +30,30 @@ exports.handler = async (event) => {
           message: "Invalid hand size. Must be between one 1 and 52",
         }),
       };
-      return response;
     }
-    if (handSize * totalHands > 52) {
-      const response = {
+    if (totalDecks > 8) {
+      return {
         statusCode: 400,
         body: JSON.stringify({
           success: false,
           hand: null,
-          message: `Not enough cards in the deck (52 cards) to deal ${hand_size} cards for ${total_hands} players.`,
+          message: "Invalid number of decks. Must be between one 1 and 8",
         }),
       };
-      return response;
+    }
+    if (handSize * totalHands > totalDecks * 52) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          success: false,
+          hand: null,
+          message: `Not enough cards in ${
+            total_decks > 1 ? `${total_decks} decks` : "the deck"
+          } (${
+            totalDecks * 52
+          } cards) to deal ${hand_size} cards for ${total_hands} players.`,
+        }),
+      };
     }
     const SUITS = ["Hearts", "Diamonds", "Spades", "Clubs"];
     const PIP = [
@@ -58,18 +72,24 @@ exports.handler = async (event) => {
       "Ace",
     ];
     const allHands = [];
-    const hand = [];
+    const hand = new Map();
     let allHandsStr = "";
     for (let i = 0; i < totalHands; i++) {
       let card = "";
       const playerHand = [];
-      while (playerHand.length < handSize) {
+      while (playerHand.length < 10) {
         let randomSuit = SUITS[Math.floor(Math.random() * SUITS.length)];
         let randomPip = PIP[Math.floor(Math.random() * PIP.length)];
         card = `${randomPip} of ${randomSuit}`;
-        if (!hand.includes(card)) {
-          hand.push(card);
-          playerHand.push(card)
+        if (!hand.get(card)) {
+          hand.set(card, 1);
+          playerHand.push(card);
+        } else if (hand.get(card) < totalDecks) {
+          console.log(`${card}`);
+          let amount = hand.get(card);
+          hand.delete(card);
+          hand.set(card, amount + 1);
+          playerHand.push(card);
         }
       }
       allHands.push(playerHand);
@@ -79,7 +99,7 @@ exports.handler = async (event) => {
       asString: allHandsStr,
       asArray: allHands,
     };
-    const response = {
+    return {
       statusCode: 200,
       body: JSON.stringify({
         success: true,
@@ -89,13 +109,11 @@ exports.handler = async (event) => {
         }. ${hand_size} cards delt${total_hands > 1 ? " per hand." : "."}`,
       }),
     };
-    return response;
   } catch (err) {
     console.log(err);
-    const response = {
+    return {
       statusCode: 500,
       body: null,
     };
-    return response;
   }
 };

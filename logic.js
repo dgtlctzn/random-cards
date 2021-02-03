@@ -14,32 +14,41 @@ const PIP = [
   "King",
   "Ace",
 ];
+const totalDecks = 1;
 
 const allHands = [];
-const hand = [];
+const hand = new Map();
 let allHandsStr = "";
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < 5; i++) {
   let card = "";
   const playerHand = [];
-  let i = 0;
-  while (playerHand.length < 5) {
+  while (playerHand.length < 10) {
     let randomSuit = SUITS[Math.floor(Math.random() * SUITS.length)];
     let randomPip = PIP[Math.floor(Math.random() * PIP.length)];
     card = `${randomPip} of ${randomSuit}`;
-    if (!hand.includes(card)) {
-      hand.push(card);
-      playerHand.push(card)
+    if (!hand.get(card)) {
+      hand.set(card, 1);
+      playerHand.push(card);
+    } else if (hand.get(card) < totalDecks) {
+      console.log(`${card}`)
+      let amount = hand.get(card);
+      hand.delete(card);
+      hand.set(card, amount + 1)
+      playerHand.push(card);
     }
   }
   allHands.push(playerHand);
-  allHandsStr += `Player ${i + 1}'s Cards: ${hand.join(", ")}\n`;
+  allHandsStr += `Player ${i + 1}'s Cards: ${playerHand.join(", ")}\n`;
 }
-const found = [];
-for (const currHand of allHands) {
-    for (const card of currHand) {
-        found.push(card);
-    }
-}
-console.log(found.length);
-const mySet = new Set(found);
-console.log(mySet.size);
+// const found = [];
+// for (const currHand of allHands) {
+//     for (const card of currHand) {
+//         found.push(card);
+//     }
+// }
+// console.log(found.length);
+// const mySet = new Set(found);
+// console.log(mySet.size);
+// console.log(allHands)
+console.log(hand)
+console.log(allHandsStr)
