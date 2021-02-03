@@ -48,7 +48,7 @@ exports.handler = async (event) => {
           success: false,
           hand: null,
           message: `Not enough cards in ${
-            total_decks > 1 ? `${total_decks} decks` : "the deck"
+            totalDecks > 1 ? `${totalDecks} decks` : "the deck"
           } (${
             totalDecks * 52
           } cards) to deal ${hand_size} cards for ${total_hands} players.`,
@@ -77,7 +77,7 @@ exports.handler = async (event) => {
     for (let i = 0; i < totalHands; i++) {
       let card = "";
       const playerHand = [];
-      while (playerHand.length < 10) {
+      while (playerHand.length < handSize) {
         let randomSuit = SUITS[Math.floor(Math.random() * SUITS.length)];
         let randomPip = PIP[Math.floor(Math.random() * PIP.length)];
         card = `${randomPip} of ${randomSuit}`;
@@ -104,7 +104,9 @@ exports.handler = async (event) => {
       body: JSON.stringify({
         success: true,
         hand: cardHand,
-        message: `${total_hands} hand${
+        message: `${
+          totalDecks > 1 ? `${totalDecks} decks` : "1 deck"
+        }. ${total_hands} hand${
           total_hands > 1 ? "s" : ""
         }. ${hand_size} cards delt${total_hands > 1 ? " per hand." : "."}`,
       }),
