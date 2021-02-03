@@ -21,7 +21,7 @@ exports.handler = async (event) => {
         }),
       };
     }
-    if (handSize < 1 || handSize > 52) {
+    if (handSize < 1 || handSize > 52 || isNaN(handSize)) {
       return {
         statusCode: 400,
         body: JSON.stringify({
@@ -31,7 +31,17 @@ exports.handler = async (event) => {
         }),
       };
     }
-    if (totalDecks > 8) {
+    if (totalHands < 1 || isNaN(totalHands)) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          success: false,
+          hand: null,
+          message: "Invalid number of hands",
+        }),
+      };
+    }
+    if (totalDecks < 1 || totalDecks > 8 || isNaN(totalDecks)) {
       return {
         statusCode: 400,
         body: JSON.stringify({
