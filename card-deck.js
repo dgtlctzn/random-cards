@@ -127,6 +127,23 @@ exports.handler = async(event) => {
       }
   }
 
+  // if no cards detected in 'previous_cards' send error message
+  if (!hand.size) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+          success: false,
+          hand: {
+            rejects
+          },
+          message: "No previous cards detected. Use GET route for a new hand",
+      }),
+      headers: {
+          "content-type": "application/json",
+      }
+  };
+  }
+
   // limits on how many cards are still available in deck
   if (handSize * totalHands > totalDecks * 52 - hand.size) {
       return {
