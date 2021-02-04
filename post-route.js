@@ -1,71 +1,31 @@
-const sample1 = [
-  ["7 of Hearts", "5 of Diamonds", "5 of Spades", "9 of Hearts"],
-  ["3 of Diamonds", "Jack of Diamonds", "King of Spades", "2 of Hearts"],
-  ["5 of Clubs", "2 of Spades", "King of Diamonds", "9 of Diamonds"],
-];
+exports.handler = async (event) => {
+  // access POST body details
+  const found = JSON.parse(event.queryStringParameters.previous_cards);
+  const hand_size = event.queryStringParameters.hand_size;
+  const total_hands = event.queryStringParameters.total_hands || "1";
+  const total_decks = event.queryStringParameters.total_decks || "1";
 
-sample2 = [
-  [
-    "Queen of Hearts",
-    "Ace of Hearts",
-    "9 of Clubs",
-    "King of Hearts",
-    "6 of Hearts",
-    "4 of Diamonds",
-    "4 of Clubs",
-    "10 of Spades",
-    "9 of Hearts",
-    "7 of Clubs",
-    "3 of Clubs",
-    "7 of Diamonds",
-    "8 of Bitches",
-  ],
-];
+  const handSize = parseInt(hand_size);
+  const totalHands = parseInt(total_hands);
+  const totalDecks = parseInt(total_decks);
 
-sample3 = [
-  "Queen of Hearts",
-  "Ace of Hearts",
-  "9 of Clubs",
-  "King of Hearts",
-  "6 of Hearts",
-  "4 of Diamonds",
-  "4 of Clubs",
-  "10 of Spades",
-  "9 of Hearts",
-  "7 of Clubs",
-  "3 of Clubs",
-  "7 of Diamonds",
-];
-
-sample4 =
-  "Player 1's Cards: Queen of Hearts, Ace of Hearts, 9 of Clubs, King of Hearts, 6 of Hearts, 4 of Diamonds, 4 of Clubs, 10 of Spades, 9 of Hearts, 7 of Clubs, 3 of Clubs, 7 of Diamonds\n";
-
-sample5 =
-  "Player 1's Cards: 4 of Diamonds, Ace of Spades, 2 of Clubs, Queen of Clubs, 2 of Hearts, 9 of Spades\nPlayer 2's Cards: 6 of Clubs, 6 of Spades, King of Hearts, 5 of Diamonds, Queen of Hearts, Ace of Clubs\n";
-
-sample6 =
-  "Player 1's Cards: 5 of Clubs, Jack of Hearts, 8 of Diamonds\nPlayer 2's Cards: 4 of Clubs, 10 of Spades, King of Spades\nPlayer 3's Cards: Jack of Spades, King of Hearts, 3 of Diamonds\nPlayer 4's Cards: 2 of Hearts, 3 of Hearts, 5 of Diamonds\n";
-
-const awsPostRoute = async (event) => {
-  // exports.handler = async (event) => {
-  // const pipList = event.join().split(",").length;
-  // console.log(pipList)
+  // detect format of 'previous_cards' parameter
   let previousCards;
-  if (event instanceof Array) {
+  if (found instanceof Array) {
     console.log("you got an array");
-    if (event[0] instanceof Array) {
+    if (found.length && found[0] instanceof Array) {
       console.log("2d array");
       previousCards = [];
-      for (const arr of event) {
+      for (const arr of found) {
         previousCards.push(...arr);
       }
-    } else if (typeof event[0] === "string") {
+    } else if (found.length && typeof found[0] === "string") {
       console.log("1d array");
-      previousCards = event;
+      previousCards = found;
     }
-  } else if (typeof event === "string") {
+  } else if (typeof found === "string") {
     console.log("you got a string");
-    const found = event.trim("\n").replace(/\n/g, ", ").split(", ");
+    const found = found.trim("\n").replace(/\n/g, ", ").split(", ");
     previousCards = found.map((card) => {
       if (card.length > 16) {
         return card.split("Cards: ")[1];
@@ -74,7 +34,8 @@ const awsPostRoute = async (event) => {
       }
     });
   }
-  const hand = new Map();
+
+  // CONSTANTS
   const SUITS = ["Hearts", "Diamonds", "Spades", "Clubs"];
   const PIP = [
     "2",
@@ -92,13 +53,16 @@ const awsPostRoute = async (event) => {
     "Ace",
   ];
 
+  // sets up Map and adds previous cards
+  // rejects added to separate array
+  const hand = new Map();
   const rejects = [];
   for (const card of previousCards) {
     const [pip, _, suit] = card.split(" ");
     if (PIP.includes(pip) && SUITS.includes(suit)) {
       if (!hand.get(card)) {
         hand.set(card, 1);
-      } else if (hand.get(card) < totalDecks) {
+      } else {
         let amount = hand.get(card);
         hand.delete(card);
         hand.set(card, amount + 1);
@@ -107,13 +71,50 @@ const awsPostRoute = async (event) => {
       rejects.push(card);
     }
   }
-  console.log(hand);
-  console.log(rejects);
-  // const response = {
-  //     statusCode: 200,
-  //     body: JSON.stringify('Hello from Lambda!'),
-  // };
-  // return response;
-};
 
-awsPostRoute(sample6);
+  // main card generation
+  const allHands = [];
+  let allHandsStr = "";
+  for (let i = 0; i < totalHands; i++) {
+    let card = "";
+    const playerHand = [];
+    while (playerHand.length < handSize) {
+      let randomSuit = SUITS[Math.floor(Math.random() * SUITS.length)];
+      let randomPip = PIP[Math.floor(Math.random() * PIP.length)];
+      card = `${randomPip} of ${randomSuit}`;
+      if (!hand.get(card)) {
+        hand.set(card, 1);
+        playerHand.push(card);
+      } else if (hand.get(card) < totalDecks) {
+        console.log(`${card}`);
+        let amount = hand.get(card);
+        hand.delete(card);
+        hand.set(card, amount + 1);
+        playerHand.push(card);
+      }
+    }
+    allHands.push(playerHand);
+    allHandsStr += `Player ${i + 1}'s Cards: ${playerHand.join(", ")}\n`;
+  }
+
+  // format response
+  const cardHand = {
+    asString: allHandsStr,
+    asArray: allHands,
+    rejects: rejects,
+  };
+  // sample reponse
+  const sampleRes = [];
+  for (const curr of hand.keys()) {
+    sampleRes.push(curr);
+  }
+
+  const response = {
+    statusCode: 200,
+    body: JSON.stringify(cardHand),
+    headers: {
+      "content-type": "application/json",
+    },
+  };
+  return response;
+};
