@@ -9,22 +9,32 @@ exports.handler = async (event) => {
   const totalHands = parseInt(total_hands);
   const totalDecks = parseInt(total_decks);
 
+  if (!hand_size) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        success: false,
+        hand: null,
+        message: "Missing 'hand_size'. Include size as string (ie. '5')",
+      }),
+      headers: {
+        "content-type": "application/json",
+      },
+    };
+  }
+
   // detect format of 'previous_cards' parameter
   let previousCards;
   if (found instanceof Array) {
-    console.log("you got an array");
     if (found.length && found[0] instanceof Array) {
-      console.log("2d array");
       previousCards = [];
       for (const arr of found) {
         previousCards.push(...arr);
       }
     } else if (found.length && typeof found[0] === "string") {
-      console.log("1d array");
       previousCards = found;
     }
   } else if (typeof found === "string") {
-    console.log("you got a string");
     const found = found.trim("\n").replace(/\n/g, ", ").split(", ");
     previousCards = found.map((card) => {
       if (card.length > 16) {
@@ -33,6 +43,25 @@ exports.handler = async (event) => {
         return card;
       }
     });
+  }
+
+  // limits on how many cards are still available in deck
+  if (handSize * totalHands > totalDecks * 52 - previousCards.length) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        success: false,
+        hand: null,
+        message: `Not enough cards in ${
+          totalDecks > 1 ? `${totalDecks} decks` : "the deck"
+        } (${
+          totalDecks * 52
+        } cards minus ${previousCards.length} previously delt cards) to deal ${hand_size} cards for ${total_hands} players.`,
+      }),
+      headers: {
+        "content-type": "application/json",
+      },
+    };
   }
 
   // CONSTANTS
