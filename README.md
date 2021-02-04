@@ -6,7 +6,7 @@
 Random Cards is an API for generating random playing cards from a standard 52 card deck, making it ideal for use in a simple card game application. The size of each hand, amount of hands, and number of decks can be configured in the route query parameters. The response has the generated cards both as a string (for display purposes) and as a array (for programmatic use). The API is hosted on AWS lambda. 
 
 ### GET Route
-[https://g9r3ols669.execute-api.us-east-1.amazonaws.com/default/randomCard](https://g9r3ols669.execute-api.us-east-1.amazonaws.com/default/randomCard?hand_size=5)
+[https://g9r3ols669.execute-api.us-east-1.amazonaws.com/randomCard](https://g9r3ols669.execute-api.us-east-1.amazonaws.com/randomCard?hand_size=5)
 
 
 ### Parameters
