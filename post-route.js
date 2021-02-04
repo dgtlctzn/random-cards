@@ -1,4 +1,4 @@
-const sample = [
+const sample1 = [
   ["7 of Hearts", "5 of Diamonds", "5 of Spades", "9 of Hearts"],
   ["3 of Diamonds", "Jack of Diamonds", "King of Spades", "2 of Hearts"],
   ["5 of Clubs", "2 of Spades", "King of Diamonds", "9 of Diamonds"],
@@ -18,7 +18,7 @@ sample2 = [
     "7 of Clubs",
     "3 of Clubs",
     "7 of Diamonds",
-    "8 of Bitches"
+    "8 of Bitches",
   ],
 ];
 
@@ -40,6 +40,12 @@ sample3 = [
 sample4 =
   "Player 1's Cards: Queen of Hearts, Ace of Hearts, 9 of Clubs, King of Hearts, 6 of Hearts, 4 of Diamonds, 4 of Clubs, 10 of Spades, 9 of Hearts, 7 of Clubs, 3 of Clubs, 7 of Diamonds\n";
 
+sample5 =
+  "Player 1's Cards: 4 of Diamonds, Ace of Spades, 2 of Clubs, Queen of Clubs, 2 of Hearts, 9 of Spades\nPlayer 2's Cards: 6 of Clubs, 6 of Spades, King of Hearts, 5 of Diamonds, Queen of Hearts, Ace of Clubs\n";
+
+sample6 =
+  "Player 1's Cards: 5 of Clubs, Jack of Hearts, 8 of Diamonds\nPlayer 2's Cards: 4 of Clubs, 10 of Spades, King of Spades\nPlayer 3's Cards: Jack of Spades, King of Hearts, 3 of Diamonds\nPlayer 4's Cards: 2 of Hearts, 3 of Hearts, 5 of Diamonds\n";
+
 const awsPostRoute = async (event) => {
   // exports.handler = async (event) => {
   // const pipList = event.join().split(",").length;
@@ -59,6 +65,14 @@ const awsPostRoute = async (event) => {
     }
   } else if (typeof event === "string") {
     console.log("you got a string");
+    const found = event.trim("\n").replace(/\n/g, ", ").split(", ");
+    previousCards = found.map((card) => {
+      if (card.length > 16) {
+        return card.split("Cards: ")[1];
+      } else {
+        return card;
+      }
+    });
   }
   const hand = new Map();
   const SUITS = ["Hearts", "Diamonds", "Spades", "Clubs"];
@@ -94,7 +108,7 @@ const awsPostRoute = async (event) => {
     }
   }
   console.log(hand);
-  console.log(rejects)
+  console.log(rejects);
   // const response = {
   //     statusCode: 200,
   //     body: JSON.stringify('Hello from Lambda!'),
@@ -102,4 +116,4 @@ const awsPostRoute = async (event) => {
   // return response;
 };
 
-awsPostRoute(sample2);
+awsPostRoute(sample6);
