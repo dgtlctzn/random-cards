@@ -1,23 +1,24 @@
 exports.handler = async (event) => {
   try {
     // access POST body details
-    const found = JSON.parse(event.queryStringParameters.previous_cards);
-    const hand_size = event.queryStringParameters.hand_size;
-    const total_hands = event.queryStringParameters.total_hands || "1";
-    const total_decks = event.queryStringParameters.total_decks || "1";
+    const postBody = JSON.parse(event.body);
+    const found = postBody.previous_cards;
+    const hand_size = postBody.hand_size;
+    const total_hands = postBody.total_hands || 1;
+    const total_decks = postBody.total_decks || 1;
 
     const handSize = parseInt(hand_size);
     const totalHands = parseInt(total_hands);
     const totalDecks = parseInt(total_decks);
 
     // basic error handling for post body parameters
-    if (!hand_size) {
+    if (!handSize) {
       return {
         statusCode: 400,
         body: JSON.stringify({
           success: false,
           hand: null,
-          message: "Missing 'hand_size'. Include size as string (ie. '5')",
+          message: "Missing 'hand_size'. Specify a number from 1 to 52",
         }),
         headers: {
           "content-type": "application/json",
@@ -154,7 +155,7 @@ exports.handler = async (event) => {
             totalDecks > 1 ? `${totalDecks} decks` : "the deck"
           } (${totalDecks * 52} cards minus ${
             hand.size
-          } previously delt cards) to deal ${hand_size} cards for ${total_hands} players.`,
+          } previously delt cards) to deal ${handSize} cards for ${totalHands} players.`,
         }),
         headers: {
           "content-type": "application/json",
