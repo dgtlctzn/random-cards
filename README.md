@@ -48,7 +48,7 @@ hand_size * total_hands <= total_decks * 52
 ## POST Route
 Post Body | Required | Description
 ------|----------|------------
-`previous_cards` | true | `asArray`  response from a previous GET request (an array of card arrays) or a single array of delt cards
+`previous_cards` | true | `asArray`  response from a previous GET request (an array of card arrays) or a single array of delt cards to be excluded from a new round of cards
 `hand_size` | true | the amount of cards desired for each hand
 `total_hands` | false | the amount of hands or players to recieve the set hand size. If left blank defaults to one
 `total_decks` | false | the amount of decks that random cards are selected from. If left blank defaults to one. Must be between 1 and 8
