@@ -55,8 +55,8 @@ Post Body | Required | Description
 
 ### Limits
 The post route adds the following limit to the amount of cards that can be drawn:
-```JavaScript
-hand_size * total_hands <= total_decks * 52 - previous_cards.length
+```
+hand_size * total_hands <= total_decks * 52 - (length of previous_cards)
 ```
 
 ### Response
@@ -67,9 +67,9 @@ The POST response is the same as the GET response with an added array of cards t
     "hand": {
         "asString": "Player 1's Cards: Jack of Clubs\n",
         "asArray": [["Jack of Clubs"]],
-        "rejects": ["5 of Bitches"]
+        "rejects": ["Queen of England"]
     },
-    "message": "1 deck. 1 hand. 1 cards delt."
+    "message": "1 deck. 1 hand. 1 card delt."
 }
 ```
 ## Questions
