@@ -14,26 +14,38 @@ Query Param | Required | Description
 `hand_size` | true | the amount of cards desired for each hand
 `total_hands` | false | the amount of hands or players to recieve the set hand size. If left blank defaults to one
 `total_decks` | false | the amount of decks that random cards are selected from. If left blank defaults to one. Must be between 1 and 8
+`aces` | false | either `'high'` (value of 11) or `'low'` (value of 1) to calculate scores. Defaults to high.
 
 
 ### Response
-A sample JSON response for a hand size of 2, a total hands size of 2, and a deck size of 1 is as follows:
+A sample JSON response for a hand size of 2, a total hands size of 2, a deck size of 1, and aces high is as follows:
 
 ```JSON
 {
     "success": true,
     "hand": {
-        "asString": "Player 1's Cards: 4 of Diamonds, Ace of Clubs\nPlayer 2's Cards: 7 of Diamonds, 3 of Clubs\n",
+        "asString": "Player 1's Cards: 9 of Diamonds, 5 of Hearts\nPlayer 2's Cards: 6 of Diamonds, Ace of Diamonds\n",
         "asArray": [
             [
-                "4 of Diamonds",
-                "Ace of Clubs"
+                "9 of Diamonds",
+                "5 of Hearts"
             ],
             [
-                "7 of Diamonds",
-                "3 of Clubs"
+                "6 of Diamonds",
+                "Ace of Diamonds"
             ]
         ],
+        "scores": {
+            "total": 31,
+            "byHand": [
+                14,
+                17
+            ],
+            "acesByHand": [
+                0,
+                1
+            ]
+        }
     },
     "message": "1 deck. 2 hands. 2 cards delt per hand."
 }
@@ -52,6 +64,7 @@ Post Body | Required | Description
 `hand_size` | true | the amount of cards desired for each hand
 `total_hands` | false | the amount of hands or players to recieve the set hand size. If left blank defaults to one
 `total_decks` | false | the amount of decks that random cards are selected from. If left blank defaults to one. Must be between 1 and 8
+`aces` | false | either `'high'` (value of 11) or `'low'` (value of 1) to calculate scores. Defaults to high.
 
 ### Limits
 The post route adds the following limit to the amount of cards that can be drawn:
@@ -67,6 +80,11 @@ The POST response is the same as the GET response with an added array of cards t
     "hand": {
         "asString": "Player 1's Cards: Jack of Clubs\n",
         "asArray": [["Jack of Clubs"]],
+        "scores": {
+            "total": 10,
+            "byHand": [10],
+            "acesByHand": [0]
+        },
         "rejects": ["Queen of England"]
     },
     "message": "1 deck. 1 hand. 1 card delt."
