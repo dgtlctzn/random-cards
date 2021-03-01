@@ -28,44 +28,44 @@ exports.handler = async (event) => {
 
     // basic error handling for post body parameters
     if (!handSize) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
+      return sendRes(
+        400,
+        JSON.stringify({
           success: false,
           hand: null,
           message: "Missing 'hand_size'. Specify a number from 1 to 52",
-        }),
-      };
+        })
+      );
     }
     if (handSize < 1 || handSize > 52 || isNaN(handSize)) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
+      return sendRes(
+        400,
+        JSON.stringify({
           success: false,
           hand: null,
           message: "Invalid hand size. Must be between one 1 and 52",
-        }),
-      };
+        })
+      );
     }
     if (totalHands < 1 || isNaN(totalHands)) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
+      return sendRes(
+        400,
+        JSON.stringify({
           success: false,
           hand: null,
           message: "Invalid number of hands",
-        }),
-      };
+        })
+      );
     }
     if (totalDecks < 1 || totalDecks > 8 || isNaN(totalDecks)) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
+      return sendRes(
+        400,
+        JSON.stringify({
           success: false,
           hand: null,
           message: "Invalid number of decks. Must be between one 1 and 8",
-        }),
-      };
+        })
+      );
     }
 
     // detect format of 'previous_cards' parameter
@@ -80,15 +80,15 @@ exports.handler = async (event) => {
         previousCards = found;
       }
     } else {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
+      return sendRes(
+        400,
+        JSON.stringify({
           success: false,
           hand: null,
           message:
             "'previous_cards' must be an array of strings or an array of arrays of strings",
-        }),
-      };
+        })
+      );
     }
     //   else if (typeof found === "string") {
     //       const foundArr = found.trim("\n").replace(/\n/g, ", ").split(", ");
@@ -142,23 +142,23 @@ exports.handler = async (event) => {
 
     // if no cards detected in 'previous_cards' send error message
     if (!hand.size) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
+      return sendRes(
+        400,
+        JSON.stringify({
           success: false,
           hand: {
             rejects,
           },
           message: "No previous cards detected. Use GET route for a new hand",
-        }),
-      };
+        })
+      );
     }
 
     // limits on how many cards are still available in deck
     if (handSize * totalHands > totalDecks * 52 - hand.size) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
+      return sendRes(
+        400,
+        JSON.stringify({
           success: false,
           hand: null,
           message: `Not enough cards in ${
@@ -166,8 +166,8 @@ exports.handler = async (event) => {
           } (${totalDecks * 52} cards minus ${
             hand.size
           } previously delt cards) to deal ${handSize} cards for ${totalHands} players.`,
-        }),
-      };
+        })
+      );
     }
 
     // main card generation
@@ -225,10 +225,9 @@ exports.handler = async (event) => {
       },
       rejects: rejects,
     };
-
-    const response = {
-      statusCode: 200,
-      body: JSON.stringify({
+    return sendRes(
+      200,
+      JSON.stringify({
         success: true,
         hand: cardHand,
         message: `${
@@ -236,15 +235,30 @@ exports.handler = async (event) => {
         }. ${totalHands} hand${
           totalHands > 1 ? "s" : ""
         }. ${handSize} cards delt${totalHands > 1 ? " per hand." : "."}`,
-      }),
-    };
-    return response;
+      })
+    );
   } catch (err) {
     console.log(err);
-    return {
-      statusCode: 500,
-      body: null,
+    return sendRes(500, {
+      success: false,
+      hand: null,
       message: "Looks like the server was delt a bad hand",
-    };
+    });
   }
+};
+
+const sendRes = (status, body) => {
+  return {
+    statusCode: status,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET",
+      "Access-Control-Allow-Credentials": true,
+      "Access-Control-Allow-Headers":
+        "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
+      "X-Requested-With": "*",
+    },
+    body: body,
+  };
 };

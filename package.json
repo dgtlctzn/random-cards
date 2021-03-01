@@ -1,0 +1,23 @@
+{
+  "name": "aws-lambda",
+  "version": "1.0.0",
+  "description": "[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) # Random Cards API",
+  "main": "card-deck.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy:get": "zip card-deck.zip card-deck.js && aws lambda update-function-code --function-name randomCard --zip-file fileb://card-deck.zip",
+    "deploy:post": "zip post-route.zip post-route.js && aws lambda update-function-code --function-name postRandomCard --zip-file fileb://post-route.zip",
+    "clean": "rm -f card-deck.zip post-route.zip"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dgtlctzn/random-cards.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dgtlctzn/random-cards/issues"
+  },
+  "homepage": "https://github.com/dgtlctzn/random-cards#readme"
+}
