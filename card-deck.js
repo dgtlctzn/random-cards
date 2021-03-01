@@ -28,49 +28,49 @@ exports.handler = async (event) => {
     const totalDecks = parseInt(total_decks);
     const aceValue = aces === "low" ? 1 : 11;
     if (!hand_size) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
+      return sendRes(
+        400,
+        JSON.stringify({
           success: false,
           hand: null,
           message: "Missing query parameter 'hand_size'",
-        }),
-      };
+        })
+      );
     }
     if (handSize < 1 || handSize > 52 || isNaN(handSize)) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
+      return sendRes(
+        400,
+        JSON.stringify({
           success: false,
           hand: null,
           message: "Invalid hand size. Must be between one 1 and 52",
-        }),
-      };
+        })
+      );
     }
     if (totalHands < 1 || isNaN(totalHands)) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
+      return sendRes(
+        400,
+        JSON.stringify({
           success: false,
           hand: null,
           message: "Invalid number of hands",
-        }),
-      };
+        })
+      );
     }
     if (totalDecks < 1 || totalDecks > 8 || isNaN(totalDecks)) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
+      return sendRes(
+        400,
+        JSON.stringify({
           success: false,
           hand: null,
           message: "Invalid number of decks. Must be between one 1 and 8",
-        }),
-      };
+        })
+      );
     }
     if (handSize * totalHands > totalDecks * 52) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
+      return sendRes(
+        400,
+        JSON.stringify({
           success: false,
           hand: null,
           message: `Not enough cards in ${
@@ -78,8 +78,8 @@ exports.handler = async (event) => {
           } (${
             totalDecks * 52
           } cards) to deal ${hand_size} cards for ${total_hands} players.`,
-        }),
-      };
+        })
+      );
     }
     const SUITS = ["Hearts", "Diamonds", "Spades", "Clubs"];
     const PIP = [
@@ -149,9 +149,9 @@ exports.handler = async (event) => {
         acesByHand,
       },
     };
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
+    return sendRes(
+      200,
+      JSON.stringify({
         success: true,
         hand: cardHand,
         message: `${
@@ -159,14 +159,30 @@ exports.handler = async (event) => {
         }. ${total_hands} hand${
           total_hands > 1 ? "s" : ""
         }. ${hand_size} cards delt${total_hands > 1 ? " per hand." : "."}`,
-      }),
-    };
+      })
+    );
   } catch (err) {
     console.log(err);
-    return {
-      statusCode: 500,
-      body: null,
+    return sendRes(500, {
+      success: false,
+      hand: null,
       message: "Looks like the server was delt a bad hand",
-    };
+    });
   }
+};
+
+const sendRes = (status, body) => {
+  return {
+    statusCode: status,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET",
+      "Access-Control-Allow-Credentials": true,
+      "Access-Control-Allow-Headers":
+        "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
+      "X-Requested-With": "*",
+    },
+    body: body,
+  };
 };
